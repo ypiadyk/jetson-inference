@@ -24,12 +24,22 @@
 import jetson.inference
 import jetson.utils
 
-net = jetson.inference.detectNet("ssd-mobilenet-v2", threshold=0.5)
-camera = jetson.utils.videoSource("csi://0")      # '/dev/video0' for V4L2
+gst_str = str("nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)%d, height=(int)%d, format=(string)NV12, framerate=(fraction)%d/1 ! " +
+            "nvvidconv ! video/x-raw, format=(string)BGRx ! " +
+			"videoconvert ! video/x-raw, format=(string)BGR ! " +
+			"appsink")
+
+gst_str = gst_str % (2592, 1458, 30)
+
+gst_str = "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720, framerate=(fraction)120/1, format=(string)NV12 ! nvvidconv flip-method=2 ! video/x-raw ! appsink name=mysink"
+
+# net = jetson.inference.detectNet("ssd-mobilenet-v2", threshold=0.5)
+camera = jetson.utils.videoSource(gst_str)      # '/dev/video0' for V4L2
 display = jetson.utils.videoOutput("display://0") # 'my_video.mp4' for file
 
 while display.IsStreaming():
 	img = camera.Capture()
-	detections = net.Detect(img)
-	display.Render(img)
-	display.SetStatus("Object Detection | Network {:.0f} FPS".format(net.GetNetworkFPS()))
+	print(img)
+	# detections = net.Detect(img)
+	# display.Render(img)
+	# display.SetStatus("Object Detection | Network {:.0f} FPS".format(net.GetNetworkFPS()))

@@ -264,6 +264,7 @@ const char* profilerQueryToStr( profilerQuery query )
 		case PROFILER_NETWORK:	  return "Network";
 		case PROFILER_POSTPROCESS: return "Post-Process";
 		case PROFILER_VISUALIZE:	  return "Visualize";
+		case PROFILER_SYNC:	  	return "Sync";
 		case PROFILER_TOTAL:	  return "Total";
 	}
 }

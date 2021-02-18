@@ -890,8 +890,12 @@ int detectNet::Detect( void* input, uint32_t width, uint32_t height, imageFormat
 			LogError(LOG_TRT "detectNet::Detect() -- failed to render overlay\n");
 	}
 	
+	// PROFILER_BEGIN(PROFILER_SYNC);
+
 	// wait for GPU to complete work			
 	CUDA(cudaDeviceSynchronize());
+
+	// PROFILER_END(PROFILER_SYNC);
 
 	// return the number of detections
 	return numDetections;
@@ -1142,19 +1146,19 @@ bool detectNet::Overlay( void* input, void* output, uint32_t width, uint32_t hei
 uint32_t detectNet::OverlayFlagsFromStr( const char* str_user )
 {
 	if( !str_user )
-		return OVERLAY_BOX;
+		return OVERLAY_NONE;
 
 	// copy the input string into a temporary array,
 	// because strok modifies the string
 	const size_t str_length = strlen(str_user);
 
 	if( str_length == 0 )
-		return OVERLAY_BOX;
+		return OVERLAY_NONE;
 
 	char* str = (char*)malloc(str_length + 1);
 
 	if( !str )
-		return OVERLAY_BOX;
+		return OVERLAY_NONE;
 
 	strcpy(str, str_user);
 
@@ -1165,7 +1169,7 @@ uint32_t detectNet::OverlayFlagsFromStr( const char* str_user )
 	if( !token )
 	{
 		free(str);
-		return OVERLAY_BOX;
+		return OVERLAY_NONE;
 	}
 
 	// look for the tokens:  "box", "label", and "none"
